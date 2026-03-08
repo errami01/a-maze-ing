@@ -43,7 +43,7 @@ def main():
     entry = (0, 0)
     exit = (width - 1, height - 1)
 
-    generator = MazeGenerator(width, height, seed=42, perfect=True)
+    generator = MazeGenerator(width, height, seed=42, perfect=False)
 
     renderer = TerminalRenderer()
 

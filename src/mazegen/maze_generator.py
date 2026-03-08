@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import List, Tuple, Optional
 import random
 from collections import deque
+import time
 
 
 @dataclass
@@ -48,18 +49,16 @@ class MazeGenerator:
     def generate(self) -> None:
         """Generate a new maze."""
 
-        # RESET GRID EACH TIME generated IS CALLED
         self.grid = [
             [Cell() for _ in range(self.width)]
             for _ in range(self.height)
         ]
 
-        visited = set()
+        visited = {(0, 0)}
         stack = [(0, 0)]
 
         while stack:
             x, y = stack[-1]
-            visited.add((x, y))
 
             neighbors = self._get_unvisited_neighbors(x, y, visited)
 
@@ -67,11 +66,19 @@ class MazeGenerator:
                 stack.pop()
                 continue
 
-            nx, ny, direction = self._rng.choice(neighbors)
+            self._rng.shuffle(neighbors)
 
-            self._remove_wall(x, y, nx, ny, direction)
+            for nx, ny, direction in neighbors:
+                if self._remove_wall(x, y, nx, ny, direction):
+                    visited.add((nx, ny))
+                    stack.append((nx, ny))
+                    break
+            else:
+                stack.pop()
 
-            stack.append((nx, ny))
+        if not self.perfect:
+            self._add_extra_connections()
+
 
 
     def _get_unvisited_neighbors(
@@ -106,9 +113,14 @@ class MazeGenerator:
         nx: int,
         ny: int,
         direction: str
-    ) -> None:
+    ) -> bool:
         cell = self.grid[y][x]
         neighbor = self.grid[ny][nx]
+        #befor removing
+        prev = (
+        cell.north, cell.east, cell.south, cell.west,
+        neighbor.north, neighbor.east, neighbor.south, neighbor.west
+        )
 
         if direction == "N":
             cell.north = False
@@ -122,6 +134,48 @@ class MazeGenerator:
         elif direction == "W":
             cell.west = False
             neighbor.east = False
+        
+        # check fo 3x3 open areas
+        if self._creates_3x3_open(x, y):
+            (
+            cell.north, cell.east, cell.south, cell.west,
+            neighbor.north, neighbor.east, neighbor.south, neighbor.west
+        ) = prev
+            return False
+        return True
+    
+    def _creates_3x3_open(self, x: int, y: int) -> bool:
+        """Check if a 3x3 open area exists around a position."""
+
+        for dy in range(-2, 1):
+            for dx in range(-2, 1):
+
+                cx = x + dx
+                cy = y + dy
+
+                if not (0 <= cx <= self.width - 3 and 0 <= cy <= self.height - 3):
+                    continue
+
+                if self._is_3x3_open(cx, cy):
+                    return True
+        return False
+    
+    def _is_3x3_open(self, x: int, y: int) -> bool:
+        """Return True if the 3x3 block at (x,y) is fully open inside."""
+
+        for j in range(3):
+            for i in range(3):
+                cell = self.grid[y + j][x + i]
+
+                if i < 2:
+                    if cell.east:
+                        return False
+
+                if j < 2:
+                    if cell.south:
+                        return False
+        return True
+
 
     def solve(
         self,
@@ -133,6 +187,7 @@ class MazeGenerator:
         visited = set([entry])
 
         while queue:
+            # time.sleep(0.25)
             (x, y), path = queue.popleft()
             if (x, y) == exit:
                 return path
@@ -183,10 +238,15 @@ class MazeGenerator:
         return rows
 
     def _add_extra_connections(self) -> None:
-        """Add random wall removals for non-perfect maze."""
-        for _ in range((self.width * self.height) // 10):
+        """Add extra connections without creating 3x3 areas."""
+
+        attempts = (self.width * self.height) // 5
+
+        for _ in range(attempts):
+
             x = self._rng.randrange(self.width)
             y = self._rng.randrange(self.height)
+
             direction = self._rng.choice(["N", "E", "S", "W"])
 
             dx, dy = {
@@ -196,6 +256,9 @@ class MazeGenerator:
                 "W": (-1, 0),
             }[direction]
 
-            nx, ny = x + dx, y + dy
+            nx = x + dx
+            ny = y + dy
+
             if 0 <= nx < self.width and 0 <= ny < self.height:
                 self._remove_wall(x, y, nx, ny, direction)
+
