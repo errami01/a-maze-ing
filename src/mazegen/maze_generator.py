@@ -2,7 +2,7 @@
 Reusable Maze Generator Module
 """
 
-from __future__ import annotations
+# from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
 import random
@@ -46,7 +46,14 @@ class MazeGenerator:
         ]
 
     def generate(self) -> None:
-        """Generate the maze using randomized DFS."""
+        """Generate a new maze."""
+
+        # RESET GRID EACH TIME generated IS CALLED
+        self.grid = [
+            [Cell() for _ in range(self.width)]
+            for _ in range(self.height)
+        ]
+
         visited = set()
         stack = [(0, 0)]
 
@@ -61,11 +68,11 @@ class MazeGenerator:
                 continue
 
             nx, ny, direction = self._rng.choice(neighbors)
+
             self._remove_wall(x, y, nx, ny, direction)
+
             stack.append((nx, ny))
 
-        if not self.perfect:
-            self._add_extra_connections()
 
     def _get_unvisited_neighbors(
         self,
