@@ -1,7 +1,7 @@
 from src.mazegen.maze_generator import MazeGenerator
 from maze.renderer import TerminalRenderer
-
-
+from maze.config_parser import parse_config
+import sys
 
 def render_ascii(maze):
     """Display maze in ASCII."""
@@ -36,25 +36,53 @@ def render_ascii(maze):
 
 
 def main():
+    if len(sys.argv) != 2:
+        print("Usage: python3 a_maze_ing.py config.txt")
+        sys.exit(1)
 
-    width = 20
-    height = 15
+    config_file = sys.argv[1]
+    # width = 20
+    # height = 15
 
-    entry = (0, 0)
-    exit = (width - 1, height - 1)
+    # entry = (0, 0)
+    # exit = (width - 1, height - 1)
+    try:
 
-    generator = MazeGenerator(width, height, seed=42, perfect=False)
+        config = parse_config(config_file)
+        entry = config["entry"]
+        exit = config["exit"]
+        generator = MazeGenerator(
+            width=config["width"],
+            height=config["height"],
+            seed=config["seed"],
+            # entry=config["entry"],
+            # exit=config["exit"],
+            perfect=config["perfect"],
+            # algorithm=config["algorithm"]
+        )
+
+        generator.generate()
+
+        maze = generator.grid
+        path = generator.solve(entry, exit)
+
+        # generator.export(config["output"], solution)
+
+        print(f"Maze successfully written to {config['output']}")
+
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+    # generator = MazeGenerator(width, height, seed=42, perfect=False)
 
     renderer = TerminalRenderer()
 
-    generator.generate()
-    maze = generator.grid
-    path = generator.solve(entry, exit)
+    # generator.generate()
+    # maze = generator.grid
+    # path = generator.solve(entry, exit)
     
     while True:
-
-
-
 
         renderer.render(maze, entry, exit, path)
 
