@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import List, Tuple, Optional
 import random
 from collections import deque
+from maze.forty_two import FortyTwo
 import time
 
 
@@ -16,7 +17,6 @@ class Cell:
     east: bool = True
     south: bool = True
     west: bool = True
-
 
 class MazeGenerator:
     """
@@ -45,6 +45,7 @@ class MazeGenerator:
             [Cell() for _ in range(width)]
             for _ in range(height)
         ]
+        self.forty_two = FortyTwo(self.width, self.height)
 
     def generate(self) -> None:
         """Generate a new maze."""
@@ -53,7 +54,6 @@ class MazeGenerator:
             [Cell() for _ in range(self.width)]
             for _ in range(self.height)
         ]
-
         visited = {(0, 0)}
         stack = [(0, 0)]
 
@@ -78,7 +78,7 @@ class MazeGenerator:
 
         if not self.perfect:
             self._add_extra_connections()
-
+        self._apply_42()
 
 
     def _get_unvisited_neighbors(
@@ -88,7 +88,7 @@ class MazeGenerator:
         visited: set[Tuple[int, int]]
     ) -> List[Tuple[int, int, str]]:
         neighbors = []
-
+        forty_two_cells = self.forty_two.get_cells()
         directions = {
             "N": (x, y - 1),
             "E": (x + 1, y),
@@ -100,7 +100,8 @@ class MazeGenerator:
             if (
                 0 <= nx < self.width and
                 0 <= ny < self.height and
-                (nx, ny) not in visited
+                (nx, ny) not in visited and
+                (nx, ny) not in  forty_two_cells
             ):
                 neighbors.append((nx, ny, direction))
 
@@ -116,6 +117,9 @@ class MazeGenerator:
     ) -> bool:
         cell = self.grid[y][x]
         neighbor = self.grid[ny][nx]
+        # forty_two_cells = self.forty_two.get_cells()
+        # if (ny, nx) in forty_two_cells or (y, x) in forty_two_cells:
+        #     return False
         #befor removing
         prev = (
         cell.north, cell.east, cell.south, cell.west,
@@ -262,3 +266,13 @@ class MazeGenerator:
             if 0 <= nx < self.width and 0 <= ny < self.height:
                 self._remove_wall(x, y, nx, ny, direction)
 
+    def _apply_42(self):
+        closed_cells = self.forty_two.get_cells()
+        for (x, y) in closed_cells:
+
+            cell = self.grid[y][x]
+
+            cell.north = True
+            cell.south = True
+            cell.east = True
+            cell.west = True

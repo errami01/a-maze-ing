@@ -1,4 +1,4 @@
-from mazegen.maze_generator import MazeGenerator
+from src.mazegen.maze_generator import MazeGenerator
 from maze.renderer import TerminalRenderer
 
 
@@ -38,7 +38,7 @@ def render_ascii(maze):
 def main():
 
     width = 20
-    height = 10
+    height = 15
 
     entry = (0, 0)
     exit = (width - 1, height - 1)
@@ -47,13 +47,14 @@ def main():
 
     renderer = TerminalRenderer()
 
+    generator.generate()
+    maze = generator.grid
+    path = generator.solve(entry, exit)
+    
     while True:
 
-        generator.generate()
 
-        maze = generator.grid
 
-        path = generator.solve(entry, exit)
 
         renderer.render(maze, entry, exit, path)
 
@@ -75,7 +76,9 @@ def main():
             renderer.next_color()
 
         elif command == "r":
-            continue
+            generator.generate()
+            maze = generator.grid
+            path = generator.solve(entry, exit)
 
 if __name__ == "__main__":
     main()

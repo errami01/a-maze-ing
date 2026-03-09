@@ -1,4 +1,6 @@
 from typing import List, Tuple
+from .forty_two import FortyTwo
+import time
 
 
 class TerminalRenderer:
@@ -32,12 +34,11 @@ class TerminalRenderer:
 
         height = len(maze)
         width = len(maze[0])
-
+        forty_two_cells = FortyTwo(width, height)
         path_cells = set()
 
         if self.show_path and path:
             x, y = entry
-
             for move in path:
                 path_cells.add((x, y))
 
@@ -76,15 +77,16 @@ class TerminalRenderer:
                     char = "X"
                 elif (x, y) in path_cells:
                     char = "*"
-
+                elif (x, y) in forty_two_cells.get_cells():
+                    char = "\033[41m \033[0m"
                 line1 += f" {char} "
 
-                if cell.east:
+                if cell.east or (x+1, y) in forty_two_cells.get_cells():
                     line1 += color + "|" + self.RESET
                 else:
                     line1 += " "
 
-                if cell.south:
+                if cell.south or (x, y+1) in forty_two_cells.get_cells():
                     line2 += color + "---+" + self.RESET
                 else:
                     line2 += "   +"
