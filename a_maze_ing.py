@@ -58,24 +58,24 @@ def main():
 
         renderer.render(maze, entry, exit, path)
 
-        print("\nCommands:")
-        print(" r → regenerate maze")
-        print(" p → toggle path")
-        print(" c → change wall color")
-        print(" q → quit")
+        print("\n=== A-Maze-ing ===")
+        print("1. Re-generate a new maze")
+        print("2. Show/Hide from the entrance to the exit")
+        print("3. Rotate maze colors")
+        print("4. Quit")
 
-        command = input("\nCommand: ").strip()
+        command = input("Choice (1-4): ").strip()
 
-        if command == "q":
+        if command == "4":
             break
 
-        elif command == "p":
+        elif command == "2":
             renderer.show_path = not renderer.show_path
 
-        elif command == "c":
+        elif command == "3":
             renderer.next_color()
 
-        elif command == "r":
+        elif command == "1":
             generator.generate()
             maze = generator.grid
             path = generator.solve(entry, exit)
