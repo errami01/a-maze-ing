@@ -65,8 +65,8 @@ def main():
 
         maze = generator.grid
         path = generator.solve(entry, exit)
-
-        # generator.export(config["output"], solution)
+        # print(maze[8][9])
+        generator.export(config["output"],entry, exit, path)
 
         print(f"Maze successfully written to {config['output']}")
 

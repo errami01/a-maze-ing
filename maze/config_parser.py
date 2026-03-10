@@ -48,8 +48,8 @@ def validate_config(config):
         width = int(config["WIDTH"])
         height = int(config["HEIGHT"])
 
-        if width <= 4 or height <= 4:
-            raise ValueError("WIDTH and HEIGHT must be at least 5x5.")
+        if width <= 0 or height <= 0:
+            raise ValueError("WIDTH and HEIGHT must be positive integers.")
 
         entry = parse_coordinates(config["ENTRY"])
         exit_ = parse_coordinates(config["EXIT"])
@@ -62,7 +62,9 @@ def validate_config(config):
 
         perfect = parse_bool(config["PERFECT"])
 
-        seed = int(config["SEED"])
+        seed = None
+        if "SEED" in config:
+            seed = int(config["SEED"])
 
         algorithm = config["ALGORITHM"]
 

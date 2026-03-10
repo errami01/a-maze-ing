@@ -237,9 +237,23 @@ class MazeGenerator:
                     (cell.south << 2) |
                     (cell.west << 3)
                 )
+                # Convert value to hex and add it to the hex_row string
                 hex_row += format(value, "X")
             rows.append(hex_row)
         return rows
+    def export(self, file_path, entry, exit_, solution):
+        """Write maze to output file."""
+
+        rows = self.to_hex_rows()
+
+        with open(file_path, "w") as f:
+
+            for row in rows:
+                f.write(row + "\n")
+            f.write("\n")
+            f.write(f"{entry[0]},{entry[1]}\n")
+            f.write(f"{exit_[0]},{exit_[1]}\n")
+            f.write(solution + "\n")
 
     def _add_extra_connections(self) -> None:
         """Add extra connections without creating 3x3 areas."""
