@@ -32,8 +32,8 @@ class MazeGenerator:
         self,
         width: int,
         height: int,
-        entry=Tuple[int, int],
-        exit=Tuple[int, int],
+        entry:Tuple[int, int],
+        exit:Tuple[int, int],
         seed: Optional[int] = None,
         perfect: bool = True
     ) -> None:
