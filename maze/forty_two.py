@@ -10,7 +10,7 @@ class FortyTwo:
     def get_cells(self) -> List[Tuple[int, int]]:
         if self.width < 14 or self.height < 10:
             # return impossible values if grid is too small
-            return [(-5, -5)]
+            return []
         four = [(self.x, self.y),
                 (self.x, self.y+1),
                 (self.x, self.y+2),

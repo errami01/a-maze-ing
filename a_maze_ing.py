@@ -41,11 +41,7 @@ def main():
         sys.exit(1)
 
     config_file = sys.argv[1]
-    # width = 20
-    # height = 15
 
-    # entry = (0, 0)
-    # exit = (width - 1, height - 1)
     try:
 
         config = parse_config(config_file)
@@ -55,8 +51,8 @@ def main():
             width=config["width"],
             height=config["height"],
             seed=config["seed"],
-            # entry=config["entry"],
-            # exit=config["exit"],
+            entry=config["entry"],
+            exit=config["exit"],
             perfect=config["perfect"],
             # algorithm=config["algorithm"]
         )
@@ -64,11 +60,10 @@ def main():
         generator.generate()
 
         maze = generator.grid
-        path = generator.solve(entry, exit)
-        # print(maze[8][9])
+        path = generator.solve()
+        print(maze[8][13])
+        print(maze[6][12])
         generator.export(config["output"],entry, exit, path)
-
-        print(f"Maze successfully written to {config['output']}")
 
     except Exception as e:
         print(f"Error: {e}")
@@ -106,7 +101,10 @@ def main():
         elif command == "1":
             generator.generate()
             maze = generator.grid
-            path = generator.solve(entry, exit)
+            path = generator.solve()
+            print(maze[8][13])
+            print(maze[6][12])
+            generator.export(config["output"],entry, exit, path)
 
 if __name__ == "__main__":
     main()

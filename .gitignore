@@ -1,3 +1,8 @@
+*.egg-info/
+build/
+dist/
 my_env
 __pycache__
-maze.txt
+output_maze.txt
+output_validator*
+test_env

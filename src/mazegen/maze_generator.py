@@ -33,11 +33,15 @@ class MazeGenerator:
         self,
         width: int,
         height: int,
+        entry=Tuple[int, int],
+        exit=Tuple[int, int],
         seed: Optional[int] = None,
         perfect: bool = True
     ) -> None:
         self.width = width
         self.height = height
+        self.entry = entry
+        self.exit = exit
         self.seed = seed
         self.perfect = perfect
         self._rng = random.Random(seed)
@@ -117,7 +121,7 @@ class MazeGenerator:
     ) -> bool:
         cell = self.grid[y][x]
         neighbor = self.grid[ny][nx]
-        # forty_two_cells = self.forty_two.get_cells()
+        forty_two_cells = self.forty_two.get_cells()
         # if (ny, nx) in forty_two_cells or (y, x) in forty_two_cells:
         #     return False
         #befor removing
@@ -127,16 +131,16 @@ class MazeGenerator:
         )
 
         if direction == "N":
-            cell.north = False
+            cell.north = (nx, ny) in forty_two_cells
             neighbor.south = False
         elif direction == "E":
-            cell.east = False
+            cell.east = (nx, ny) in forty_two_cells
             neighbor.west = False
         elif direction == "S":
-            cell.south = False
+            cell.south = (nx, ny) in forty_two_cells
             neighbor.north = False
         elif direction == "W":
-            cell.west = False
+            cell.west = (nx, ny) in forty_two_cells
             neighbor.east = False
         
         # check fo 3x3 open areas
@@ -181,19 +185,15 @@ class MazeGenerator:
         return True
 
 
-    def solve(
-        self,
-        entry: Tuple[int, int],
-        exit: Tuple[int, int]
-    ) -> str:
+    def solve(self) -> str:
         """Return shortest path as NESW string."""
-        queue = deque([(entry, "")])
-        visited = set([entry])
+        queue = deque([(self.entry, "")])
+        visited = set([self.entry])
 
         while queue:
             # time.sleep(0.25)
             (x, y), path = queue.popleft()
-            if (x, y) == exit:
+            if (x, y) == self.exit:
                 return path
 
             for dx, dy, d in [

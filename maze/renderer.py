@@ -80,12 +80,12 @@ class TerminalRenderer:
                     char = "\033[41m \033[0m"
                 line1 += f" {char} "
 
-                if cell.east or (x+1, y) in forty_two_cells.get_cells():
+                if cell.east :
                     line1 += color + "|" + self.RESET
                 else:
                     line1 += " "
 
-                if cell.south or (x, y+1) in forty_two_cells.get_cells():
+                if cell.south:
                     line2 += color + "---+" + self.RESET
                 else:
                     line2 += "   +"
