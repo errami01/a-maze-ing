@@ -22,7 +22,9 @@ def parse_config(file_path):
                     continue
 
                 if "=" not in line:
-                    raise ValueError(f"Invalid syntax at line {line_number}: {line}")
+                    raise ValueError(
+                        f"Invalid syntax at line {line_number}: {line}"
+                        )
 
                 key, value = line.split("=", 1)
                 key = key.strip()

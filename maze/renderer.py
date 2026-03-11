@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Tuple
 from .forty_two import FortyTwo
 
 
@@ -80,7 +80,7 @@ class TerminalRenderer:
                     char = "\033[41m \033[0m"
                 line1 += f" {char} "
 
-                if cell.east :
+                if cell.east:
                     line1 += color + "|" + self.RESET
                 else:
                     line1 += " "

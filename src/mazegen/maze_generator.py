@@ -2,13 +2,11 @@
 Reusable Maze Generator Module
 """
 
-# from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
 import random
 from collections import deque
 from maze.forty_two import FortyTwo
-import time
 
 
 @dataclass
@@ -17,6 +15,7 @@ class Cell:
     east: bool = True
     south: bool = True
     west: bool = True
+
 
 class MazeGenerator:
     """
@@ -84,7 +83,6 @@ class MazeGenerator:
             self._add_extra_connections()
         self._apply_42()
 
-
     def _get_unvisited_neighbors(
         self,
         x: int,
@@ -105,7 +103,7 @@ class MazeGenerator:
                 0 <= nx < self.width and
                 0 <= ny < self.height and
                 (nx, ny) not in visited and
-                (nx, ny) not in  forty_two_cells
+                (nx, ny) not in forty_two_cells
             ):
                 neighbors.append((nx, ny, direction))
 
@@ -124,11 +122,11 @@ class MazeGenerator:
         forty_two_cells = self.forty_two.get_cells()
         # if (ny, nx) in forty_two_cells or (y, x) in forty_two_cells:
         #     return False
-        #befor removing
+        # befor removing
         prev = (
-        cell.north, cell.east, cell.south, cell.west,
-        neighbor.north, neighbor.east, neighbor.south, neighbor.west
-        )
+            cell.north, cell.east, cell.south, cell.west,
+            neighbor.north, neighbor.east, neighbor.south, neighbor.west
+            )
 
         if direction == "N":
             cell.north = (nx, ny) in forty_two_cells
@@ -142,16 +140,16 @@ class MazeGenerator:
         elif direction == "W":
             cell.west = (nx, ny) in forty_two_cells
             neighbor.east = False
-        
+
         # check fo 3x3 open areas
         if self._creates_3x3_open(x, y):
             (
-            cell.north, cell.east, cell.south, cell.west,
-            neighbor.north, neighbor.east, neighbor.south, neighbor.west
-        ) = prev
+                cell.north, cell.east, cell.south, cell.west,
+                neighbor.north, neighbor.east, neighbor.south, neighbor.west
+            ) = prev
             return False
         return True
-    
+
     def _creates_3x3_open(self, x: int, y: int) -> bool:
         """Check if a 3x3 open area exists around a position."""
 
@@ -161,13 +159,16 @@ class MazeGenerator:
                 cx = x + dx
                 cy = y + dy
 
-                if not (0 <= cx <= self.width - 3 and 0 <= cy <= self.height - 3):
+                if not(
+                    0 <= cx <= self.width - 3
+                    and 0 <= cy <= self.height - 3
+                ):
                     continue
 
                 if self._is_3x3_open(cx, cy):
                     return True
         return False
-    
+
     def _is_3x3_open(self, x: int, y: int) -> bool:
         """Return True if the 3x3 block at (x,y) is fully open inside."""
 
@@ -183,7 +184,6 @@ class MazeGenerator:
                     if cell.south:
                         return False
         return True
-
 
     def solve(self) -> str:
         """Return shortest path as NESW string."""
@@ -241,6 +241,7 @@ class MazeGenerator:
                 hex_row += format(value, "X")
             rows.append(hex_row)
         return rows
+
     def export(self, file_path, entry, exit_, solution):
         """Write maze to output file."""
 

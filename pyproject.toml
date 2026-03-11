@@ -14,3 +14,9 @@ requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.mypy]
+exclude = ["\\.myenv"]
+
+[tool.flake8]
+exclude = [".myenv"]

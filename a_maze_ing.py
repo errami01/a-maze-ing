@@ -3,6 +3,7 @@ from maze.renderer import TerminalRenderer
 from maze.config_parser import parse_config
 import sys
 
+
 def render_ascii(maze):
     """Display maze in ASCII."""
     height = len(maze)
@@ -63,20 +64,14 @@ def main():
         path = generator.solve()
         print(maze[8][13])
         print(maze[6][12])
-        generator.export(config["output"],entry, exit, path)
+        generator.export(config["output"], entry, exit, path)
 
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
 
-    # generator = MazeGenerator(width, height, seed=42, perfect=False)
-
     renderer = TerminalRenderer()
 
-    # generator.generate()
-    # maze = generator.grid
-    # path = generator.solve(entry, exit)
-    
     while True:
 
         renderer.render(maze, entry, exit, path)
@@ -104,7 +99,8 @@ def main():
             path = generator.solve()
             print(maze[8][13])
             print(maze[6][12])
-            generator.export(config["output"],entry, exit, path)
+            generator.export(config["output"], entry, exit, path)
+
 
 if __name__ == "__main__":
     main()
