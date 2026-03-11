@@ -13,10 +13,7 @@ authors = [
 requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["."]
 
 [tool.mypy]
-exclude = ["\\.myenv"]
-
-[tool.flake8]
-exclude = [".myenv"]
+exclude = "(venv|\\.venv|build|dist)"

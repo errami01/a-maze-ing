@@ -1,5 +1,5 @@
 from typing import Tuple
-from .forty_two import FortyTwo
+from mazegen.maze_generator import FortyTwo
 
 
 class TerminalRenderer:
