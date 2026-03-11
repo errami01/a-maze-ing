@@ -130,16 +130,16 @@ class MazeGenerator:
 
         if direction == "N":
             cell.north = (nx, ny) in forty_two_cells
-            neighbor.south = False
+            neighbor.south = (x, y) in forty_two_cells
         elif direction == "E":
             cell.east = (nx, ny) in forty_two_cells
-            neighbor.west = False
+            neighbor.west = (x, y) in forty_two_cells
         elif direction == "S":
             cell.south = (nx, ny) in forty_two_cells
-            neighbor.north = False
+            neighbor.north = (x, y) in forty_two_cells
         elif direction == "W":
             cell.west = (nx, ny) in forty_two_cells
-            neighbor.east = False
+            neighbor.east = (x, y) in forty_two_cells
 
         # check fo 3x3 open areas
         if self._creates_3x3_open(x, y):
