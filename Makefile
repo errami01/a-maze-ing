@@ -1,19 +1,26 @@
+PYTHON = python3
+MAIN = a_maze_ing.py
+CONFIG = default_config.txt
+
 install:
 	pip install -r requirements.txt
 
 run:
-	python3 a_maze_ing.py default_config.txt
+	$(PYTHON) $(MAIN) $(CONFIG)
 
 debug:
-	python3 -m pdb a_maze_ing.py default_config.txt
+	$(PYTHON) -m pdb $(MAIN) $(CONFIG)
 
 clean:
-	find . -type d -name "__pycache__" -exec rm -r {} +
-	rm -rf .mypy_cache build dist *.egg-info
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type d -name ".mypy_cache" -exec rm -rf {} +
+	find . -type f -name "*.pyc" -delete
+	rm -rf build dist *.egg-info
 
 lint:
 	flake8 .
 	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+
 lint-strict:
 	flake8 .
 	mypy . --strict

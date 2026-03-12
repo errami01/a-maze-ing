@@ -1,10 +1,11 @@
-from mazegen.maze_generator import MazeGenerator
+from mazegen.maze_generator import MazeGenerator, Cell
 from renderer import TerminalRenderer
 from config_parser import parse_config
+from typing import List
 import sys
 
 
-def render_ascii(maze):
+def render_ascii(maze: List[List[Cell]]) -> None:
     """Display maze in ASCII."""
     height = len(maze)
     width = len(maze[0])
@@ -36,7 +37,7 @@ def render_ascii(maze):
         print(line2)
 
 
-def main():
+def main() -> None:
     if len(sys.argv) != 2:
         print("Usage: python3 a_maze_ing.py config.txt")
         sys.exit(1)
@@ -62,8 +63,8 @@ def main():
 
         maze = generator.grid
         path = generator.solve()
-        print(maze[8][13])
-        print(maze[6][12])
+        # print(maze[8][13])
+        # print(maze[6][12])
         generator.export(config["output"], entry, exit, path)
 
     except Exception as e:

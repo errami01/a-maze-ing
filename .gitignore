@@ -6,3 +6,4 @@ __pycache__
 output_maze.txt
 output_validator*
 test_env
+venv

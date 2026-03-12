@@ -1,5 +1,5 @@
-from typing import Tuple
-from mazegen.maze_generator import FortyTwo
+from typing import Tuple, List
+from mazegen.maze_generator import FortyTwo, Cell
 
 
 class TerminalRenderer:
@@ -25,7 +25,7 @@ class TerminalRenderer:
 
     def render(
         self,
-        maze,
+        maze: List[List[Cell]],
         entry: Tuple[int, int],
         exit: Tuple[int, int],
         path: str | None = None,

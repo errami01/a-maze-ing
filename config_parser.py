@@ -1,6 +1,7 @@
+from typing import Tuple, Dict, Any
 
 
-def parse_config(file_path):
+def parse_config(file_path: str) -> Dict[str, Any]:
     MANDATORY_KEYS = {
         "WIDTH",
         "HEIGHT",
@@ -44,7 +45,7 @@ def parse_config(file_path):
     return validate_config(config)
 
 
-def validate_config(config):
+def validate_config(config: Dict[str, Any]) -> Dict[str, Any]:
 
     try:
         width = int(config["WIDTH"])
@@ -85,7 +86,7 @@ def validate_config(config):
         raise ValueError(f"Invalid configuration: {e}")
 
 
-def parse_coordinates(value):
+def parse_coordinates(value: str) -> Tuple[int, int]:
 
     if "," not in value:
         raise ValueError(f"Invalid coordinate format: {value}")
@@ -95,7 +96,7 @@ def parse_coordinates(value):
     return int(x), int(y)
 
 
-def parse_bool(value):
+def parse_bool(value: str) -> bool:
 
     value = value.lower()
 

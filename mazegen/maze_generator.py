@@ -242,7 +242,11 @@ class MazeGenerator:
             rows.append(hex_row)
         return rows
 
-    def export(self, file_path, entry, exit_, solution):
+    def export(
+            self, file_path: str,
+            entry: Tuple[int, int],
+            exit_: Tuple[int, int],
+            solution: str) -> None:
         """Write maze to output file."""
 
         rows = self.to_hex_rows()
@@ -281,7 +285,7 @@ class MazeGenerator:
             if 0 <= nx < self.width and 0 <= ny < self.height:
                 self._remove_wall(x, y, nx, ny, direction)
 
-    def _apply_42(self):
+    def _apply_42(self) -> None:
         closed_cells = self.forty_two.get_cells()
         for (x, y) in closed_cells:
 
