@@ -1,6 +1,6 @@
-from mazegen.maze_generator import MazeGenerator, Cell
-from renderer import TerminalRenderer
-from config_parser import parse_config
+from src.mazegen.maze_generator import MazeGenerator, Cell
+from maze.renderer import TerminalRenderer
+from maze.config_parser import parse_config
 from typing import List
 import sys
 

@@ -1,5 +1,5 @@
 from typing import Tuple, List
-from mazegen.maze_generator import FortyTwo, Cell
+from src.mazegen.maze_generator import FortyTwo, Cell
 
 
 class TerminalRenderer:
