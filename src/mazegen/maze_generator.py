@@ -1,12 +1,7 @@
-"""
-Reusable Maze Generator Module
-"""
-
 from dataclasses import dataclass
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Literal
 import random
 from collections import deque
-# from .forty_two import FortyTwo
 
 
 @dataclass
@@ -24,8 +19,11 @@ class MazeGenerator:
     Parameters:
         width (int): Maze width
         height (int): Maze height
+        entry (Tuple[int, int]): Start position
+        exit (Tuple[int, int]): End position
         seed (Optional[int]): Random seed
         perfect (bool): Generate perfect maze
+        algorithm (str): Maze generation algorithm ("dfs" or "prim")
     """
 
     def __init__(
@@ -35,7 +33,8 @@ class MazeGenerator:
         entry: Tuple[int, int],
         exit: Tuple[int, int],
         seed: Optional[int] = None,
-        perfect: bool = True
+        perfect: bool = True,
+        algorithm: Literal["dfs", "prim"] = "dfs",
     ) -> None:
         self.width = width
         self.height = height
@@ -43,6 +42,7 @@ class MazeGenerator:
         self.exit = exit
         self.seed = seed
         self.perfect = perfect
+        self.algorithm = algorithm.lower()
         self._rng = random.Random(seed)
         self.grid: List[List[Cell]] = [
             [Cell() for _ in range(width)]
@@ -50,13 +50,30 @@ class MazeGenerator:
         ]
         self.forty_two = FortyTwo(self.width, self.height)
 
+        if self.algorithm not in {"dfs", "prim"}:
+            raise ValueError("algorithm must be 'dfs' or 'prim'")
+
     def generate(self) -> None:
-        """Generate a new maze."""
+        """Generate a new maze using the selected algorithm."""
 
         self.grid = [
             [Cell() for _ in range(self.width)]
             for _ in range(self.height)
         ]
+
+        if self.algorithm == "dfs":
+            self._generate_dfs()
+        elif self.algorithm == "prim":
+            self._generate_prim()
+
+        if not self.perfect:
+            self._add_extra_connections()
+
+        self._apply_42()
+
+    def _generate_dfs(self) -> None:
+        """Generate a new maze using DFS"""
+
         visited = {(0, 0)}
         stack = [(0, 0)]
 
@@ -79,9 +96,55 @@ class MazeGenerator:
             else:
                 stack.pop()
 
-        if not self.perfect:
-            self._add_extra_connections()
-        self._apply_42()
+    def _generate_prim(self) -> None:
+        """Generate a new maze using Prim"""
+
+        blocked = set(self.forty_two.get_cells())
+        start = (0, 0)
+
+        visited = {start}
+        frontier: List[Tuple[int, int, int, int, str]] = []
+
+        self._add_frontier_edges(start[0], start[1], visited,
+                                 frontier, blocked)
+
+        while frontier:
+            idx = self._rng.randrange(len(frontier))
+            x, y, nx, ny, direction = frontier.pop(idx)
+
+            if (nx, ny) in visited:
+                continue
+
+            if self._remove_wall(x, y, nx, ny, direction):
+                visited.add((nx, ny))
+                self._add_frontier_edges(nx, ny, visited, frontier, blocked)
+
+    def _add_frontier_edges(
+        self,
+        x: int,
+        y: int,
+        visited: set[Tuple[int, int]],
+        frontier: List[Tuple[int, int, int, int, str]],
+        blocked: set[Tuple[int, int]],
+    ) -> None:
+        """add edges for current cell"""
+
+        for direction, (nx, ny) in self._neighbor_coords(x, y).items():
+            if (
+                0 <= nx < self.width
+                and 0 <= ny < self.height
+                and (nx, ny) not in visited
+                and (nx, ny) not in blocked
+            ):
+                frontier.append((x, y, nx, ny, direction))
+
+    def _neighbor_coords(self, x: int, y: int) -> dict[str, Tuple[int, int]]:
+        return {
+            "N": (x, y - 1),
+            "E": (x + 1, y),
+            "S": (x, y + 1),
+            "W": (x - 1, y),
+        }
 
     def _get_unvisited_neighbors(
         self,
@@ -90,13 +153,8 @@ class MazeGenerator:
         visited: set[Tuple[int, int]]
     ) -> List[Tuple[int, int, str]]:
         neighbors = []
-        forty_two_cells = self.forty_two.get_cells()
-        directions = {
-            "N": (x, y - 1),
-            "E": (x + 1, y),
-            "S": (x, y + 1),
-            "W": (x - 1, y),
-        }
+        forty_two_cells = set(self.forty_two.get_cells())
+        directions = self._neighbor_coords(x, y)
 
         for direction, (nx, ny) in directions.items():
             if (
@@ -119,14 +177,12 @@ class MazeGenerator:
     ) -> bool:
         cell = self.grid[y][x]
         neighbor = self.grid[ny][nx]
-        forty_two_cells = self.forty_two.get_cells()
-        # if (ny, nx) in forty_two_cells or (y, x) in forty_two_cells:
-        #     return False
-        # befor removing
+        forty_two_cells = set(self.forty_two.get_cells())
+
         prev = (
             cell.north, cell.east, cell.south, cell.west,
             neighbor.north, neighbor.east, neighbor.south, neighbor.west
-            )
+        )
 
         if direction == "N":
             cell.north = (nx, ny) in forty_two_cells
@@ -141,8 +197,7 @@ class MazeGenerator:
             cell.west = (nx, ny) in forty_two_cells
             neighbor.east = (x, y) in forty_two_cells
 
-        # check fo 3x3 open areas
-        if self._creates_3x3_open(x, y):
+        if self._creates_3x3_open(x, y) or self._creates_3x3_open(nx, ny):
             (
                 cell.north, cell.east, cell.south, cell.west,
                 neighbor.north, neighbor.east, neighbor.south, neighbor.west
@@ -155,7 +210,6 @@ class MazeGenerator:
 
         for dy in range(-2, 1):
             for dx in range(-2, 1):
-
                 cx = x + dx
                 cy = y + dy
 
@@ -167,6 +221,7 @@ class MazeGenerator:
 
                 if self._is_3x3_open(cx, cy):
                     return True
+
         return False
 
     def _is_3x3_open(self, x: int, y: int) -> bool:
@@ -176,23 +231,22 @@ class MazeGenerator:
             for i in range(3):
                 cell = self.grid[y + j][x + i]
 
-                if i < 2:
-                    if cell.east:
-                        return False
+                if i < 2 and cell.east:
+                    return False
 
-                if j < 2:
-                    if cell.south:
-                        return False
+                if j < 2 and cell.south:
+                    return False
+
         return True
 
     def solve(self) -> str:
         """Return shortest path as NESW string."""
         queue = deque([(self.entry, "")])
-        visited = set([self.entry])
+        visited = {self.entry}
 
         while queue:
-            # time.sleep(0.25)
             (x, y), path = queue.popleft()
+
             if (x, y) == self.exit:
                 return path
 
@@ -237,22 +291,22 @@ class MazeGenerator:
                     (cell.south << 2) |
                     (cell.west << 3)
                 )
-                # Convert value to hex and add it to the hex_row string
                 hex_row += format(value, "X")
             rows.append(hex_row)
         return rows
 
     def export(
-            self, file_path: str,
-            entry: Tuple[int, int],
-            exit_: Tuple[int, int],
-            solution: str) -> None:
+        self,
+        file_path: str,
+        entry: Tuple[int, int],
+        exit_: Tuple[int, int],
+        solution: str
+    ) -> None:
         """Write maze to output file."""
 
         rows = self.to_hex_rows()
 
         with open(file_path, "w") as f:
-
             for row in rows:
                 f.write(row + "\n")
             f.write("\n")
@@ -266,7 +320,6 @@ class MazeGenerator:
         attempts = (self.width * self.height) // 5
 
         for _ in range(attempts):
-
             x = self._rng.randrange(self.width)
             y = self._rng.randrange(self.height)
 
@@ -287,10 +340,9 @@ class MazeGenerator:
 
     def _apply_42(self) -> None:
         closed_cells = self.forty_two.get_cells()
+
         for (x, y) in closed_cells:
-
             cell = self.grid[y][x]
-
             cell.north = True
             cell.south = True
             cell.east = True
@@ -301,34 +353,39 @@ class FortyTwo:
     """
     Set the coordinates for the Forty Two pattern
     """
+
     def __init__(self, width: int, height: int) -> None:
         self.width = width
         self.height = height
-        self.x = int((width/2) - 3)
-        self.y = int((height/2) - 2)
+        self.x = int((width / 2) - 3)
+        self.y = int((height / 2) - 2)
 
     def get_cells(self) -> List[Tuple[int, int]]:
         if self.width < 14 or self.height < 10:
-            # return impossible values if grid is too small
             return []
+
         four = [
             (self.x, self.y),
-            (self.x, self.y+1),
-            (self.x, self.y+2),
-            (self.x+1, self.y+2),
-            (self.x+2, self.y+2),
-            (self.x+2, self.y+3),
-            (self.x+2, self.y+4)]
+            (self.x, self.y + 1),
+            (self.x, self.y + 2),
+            (self.x + 1, self.y + 2),
+            (self.x + 2, self.y + 2),
+            (self.x + 2, self.y + 3),
+            (self.x + 2, self.y + 4),
+        ]
+
         two = [
-            (self.x+4, self.y),
-            (self.x+5, self.y),
-            (self.x+6, self.y),
-            (self.x+6, self.y+1),
-            (self.x+6, self.y+2),
-            (self.x+5, self.y+2),
-            (self.x+4, self.y+2),
-            (self.x+4, self.y+3),
-            (self.x+4, self.y+4),
-            (self.x+5, self.y+4),
-            (self.x+6, self.y+4)]
+            (self.x + 4, self.y),
+            (self.x + 5, self.y),
+            (self.x + 6, self.y),
+            (self.x + 6, self.y + 1),
+            (self.x + 6, self.y + 2),
+            (self.x + 5, self.y + 2),
+            (self.x + 4, self.y + 2),
+            (self.x + 4, self.y + 3),
+            (self.x + 4, self.y + 4),
+            (self.x + 5, self.y + 4),
+            (self.x + 6, self.y + 4),
+        ]
+
         return four + two
