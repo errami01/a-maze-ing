@@ -1,3 +1,4 @@
+import time
 from typing import Tuple, List
 from src.mazegen.maze_generator import FortyTwo, Cell
 
@@ -60,12 +61,10 @@ class TerminalRenderer:
         print(color + "+" + "---+" * width + self.RESET)
 
         for y in range(height):
-
             line1 = color + "|" + self.RESET
             line2 = color + "+" + self.RESET
 
             for x in range(width):
-
                 cell = maze[y][x]
 
                 char = " "

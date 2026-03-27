@@ -56,7 +56,7 @@ def main() -> None:
             entry=config["entry"],
             exit=config["exit"],
             perfect=config["perfect"],
-            # algorithm=config["algorithm"]
+            algorithm=config["algorithm"]
         )
 
         generator.generate()
@@ -98,8 +98,8 @@ def main() -> None:
             generator.generate()
             maze = generator.grid
             path = generator.solve()
-            print(maze[8][13])
-            print(maze[6][12])
+            # print(maze[8][13])
+            # print(maze[6][12])
             generator.export(config["output"], entry, exit, path)
 
 
